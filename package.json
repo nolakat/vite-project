@@ -9,8 +9,12 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "vite": "^4.2.0",
     "dat.gui": "^0.7.9",
-    "three": "^0.151.3"
+    "vite": "^4.2.0"
+  },
+  "dependencies": {
+    "three": "^0.150.1",
+    "tone": "^14.7.77",
+    "vite-plugin-gltf": "^3.1.0"
   }
 }

@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+
 import * as dat from 'dat.gui';
 
 import { LineSegmentsGeometry } from 'three/examples/jsm/lines/LineSegmentsGeometry.js';
@@ -19,15 +20,9 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelatedPass.js';
 
 
-let test = document.querySelector('#app')
-
-test.addEventListener('click', function() {
-	console.log('click')
-})
-
 			// globals
 			var params = {
-				colors: 'LIGHT',
+				colors: 'DARK',
 				backgroundColor: '#0d2a28',
 				modelColor: '#0d2a28',
 				lineColor: '#ffb400',
@@ -42,7 +37,7 @@ test.addEventListener('click', function() {
 				useThickLines: false,
 				displayPixelPass: false,
 				pixelSize: 6,
-				model: 'CYLINDER',
+				model: 'TEST',
 				randomize: () => randomizeColors(),
 			};
 			let camera, scene, renderer, composer, renderPixelatedPass, controls, edgesModel, originalModel, backgroundModel, conditionalModel, shadowModel, floor, depthModel, gui;
@@ -129,7 +124,7 @@ test.addEventListener('click', function() {
 
 				} );
 
-				const mergedGeometries = BufferGeometryUtils.mergeGeometries( geometry, false );
+				const mergedGeometries = BufferGeometryUtils.mergeBufferGeometries( geometry, false );
 				const mergedGeometry = BufferGeometryUtils.mergeVertices( mergedGeometries ).center();
 
 				const group = new THREE.Group();
@@ -474,7 +469,7 @@ test.addEventListener('click', function() {
 
 				models.TEST = null;
 				new GLTFLoader().load(
-					'models/obj-flower-test.gltf',
+					'models/obj-pot-plant.glb',
 					gltf => {
 
 						const model = mergeObject( gltf.scene );

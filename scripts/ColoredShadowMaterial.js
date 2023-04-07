@@ -40,7 +40,7 @@ export class ColoredShadowMaterial extends ShaderMaterial {
 				#define PHONG
 				varying vec3 vViewPosition;
 				#ifndef FLAT_SHADED
-					varying vec3 vNormal;
+					varying vec2 vNormal;
 				#endif
 				#include <common>
 				#include <uv_pars_vertex>
