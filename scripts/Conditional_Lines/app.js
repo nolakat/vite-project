@@ -41,8 +41,10 @@ import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelated
 				randomize: () => randomizeColors(),
 			};
 			let camera, scene, renderer, composer, renderPixelatedPass, controls, edgesModel, originalModel, backgroundModel, conditionalModel, shadowModel, floor, depthModel, gui;
-
+			const bones = [];
 			const models = {};
+			let skeleton;
+			let skinnedMesh;
 			const color = new THREE.Color();
 			const color2 = new THREE.Color();
 
@@ -466,17 +468,45 @@ import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelated
 				cylinder.children[ 0 ].castShadow = true;
 				models.CYLINDER = cylinder;
 
+
 				models.TEST = null;
 				new GLTFLoader().load(
-					'models/test-stem-new-bones.glb',
+					'models/basic-test.glb',
 					gltf => {
 
 						gltf.scene.traverse( function ( child ) {
-							console.log('child', child)
+							// console.log('child', child)
+							if(child.isBone){
+								bones.push(child)
+							}
+							if(child.isSkinnedMesh){
+								skinnedMesh = child;
+							}
 						 })
 
-						 const helper = new THREE.SkeletonHelper( gltf.scene );
-						 scene.add( helper );
+						 console.log('bones', bones);
+
+						 skeleton = new THREE.Skeleton( bones );
+						 console.log('skeleton', skeleton);
+						 skinnedMesh.add(bones[0])
+						 skinnedMesh.bind(skeleton);
+
+						 console.log('SkinnedMesh', skinnedMesh);
+
+						const skeletonHelper = new THREE.SkeletonHelper( skinnedMesh );
+						skeletonHelper.material.linewidth = 2;
+
+						scene.add(skeletonHelper)
+
+
+
+						//  const helper = new THREE.SkeletonHelper( skeleton );
+						//  console.log('HELPER', helper);
+
+						//  helper.material.linewidth = 2;
+
+						// const helper = new THREE.SkeletonHelper( child );
+						// scene.add( helper );
 
 						const model = mergeObject( gltf.scene );
 
@@ -486,6 +516,8 @@ import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelated
 
 
 						models.TEST = model;
+
+						initGui();
 						updateModel();
 
 					}
@@ -560,7 +592,27 @@ import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelated
 
 				} );
 
-				gui.open();
+				for ( let i = 0; i < bones.length; i ++ ) {
+
+					const bone = bones[ i ];
+					let folder = gui.addFolder(  bone.name );
+
+					folder.add( bone.position, 'x', - 10 + bone.position.x, 10 + bone.position.x ).name( 'position.x' ).onChange( () => {	console.log('pos', bone.position.x) })	;
+					folder.add( bone.position, 'y', - 10 + bone.position.y, 10 + bone.position.y ).name( 'position.y');
+					folder.add( bone.position, 'z', - 10 + bone.position.z, 10 + bone.position.z ).name( 'position.z');
+
+					folder.add( bone.rotation, 'x', - Math.PI * 0.5, Math.PI * 0.5 ).name('rotation.x').onChange( () => {
+						// skeleton.update();
+						// console.log('rot', bone.rotation.x)
+					});
+					folder.add( bone.rotation, 'y', - Math.PI * 0.5, Math.PI * 0.5 ).name('rotation.y');
+					folder.add( bone.rotation, 'z', - Math.PI * 0.5, Math.PI * 0.5 ).name('rotation.z');
+
+					folder.add( bone.scale, 'x', 0, 2 ).name('scale.x');
+					folder.add( bone.scale, 'y', 0, 2 ).name('scale.y');
+					folder.add( bone.scale, 'z', 0, 2 ).name('scale.z');
+
+				}
 
 			}
 
@@ -580,6 +632,17 @@ import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelated
 			function animate() {
 
 				requestAnimationFrame( animate );
+
+				const time = Date.now() * 0.001;
+
+				if(skinnedMesh) {
+					for ( let i = 0; i < skinnedMesh.skeleton.bones.length; i ++ ) {
+
+						skinnedMesh.skeleton.bones[ i ].rotation.z = Math.sin( time ) * 2 / skinnedMesh.skeleton.bones.length;
+						// console.log('rot', skinnedMesh.skeleton.bones[ i ].rotation.z)
+					}
+				}
+
 
 				let linesColor = LIGHT_LINES;
 				let modelColor = LIGHT_MODEL;
@@ -751,3 +814,9 @@ import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelated
 				renderer.render( scene, camera );
 
 			}
+
+
+			// document.addEventListener('mousemove', function(e) {
+			// 	bones[1].position.set(0,0, e.clientX / 100);
+			// 	bones[1].rotation.x = e.clientX / 100;
+			// });
