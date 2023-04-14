@@ -29,7 +29,7 @@ import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelated
 				shadowColor: '#44491f',
 
 				lit: false,
-				opacity: 0.85,
+				opacity: 0.15,
 				threshold: 40,
 				display: 'THRESHOLD_EDGES',
 				displayConditionalEdges: true,
@@ -322,7 +322,6 @@ import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelated
 					parent.remove( mesh );
 					parent.add( line );
 					parent.add( thickLines );
-
 				}
 
 			}
@@ -417,7 +416,7 @@ import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelated
 				scene.background = new THREE.Color( LIGHT_BACKGROUND );
 
 				camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 0.1, 2000 );
-				camera.position.set( -1, 0.5, 2 ).multiplyScalar( 0.75 );
+				camera.position.set( -1, 0.5, 50 ).multiplyScalar( 0.75 );
 				scene.add( camera );
 
 				renderer = new THREE.WebGLRenderer( { antialias: true } );
@@ -469,18 +468,30 @@ import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelated
 
 				models.TEST = null;
 				new GLTFLoader().load(
-					'models/obj-pot-plant.glb',
+					'models/test-stem-new-bones.glb',
 					gltf => {
 
+						gltf.scene.traverse( function ( child ) {
+							console.log('child', child)
+						 })
+
+						 const helper = new THREE.SkeletonHelper( gltf.scene );
+						 scene.add( helper );
+
 						const model = mergeObject( gltf.scene );
+
 						model.children[ 0 ].geometry.computeBoundingBox();
 						model.children[ 0 ].castShadow = true;
+
+
 
 						models.TEST = model;
 						updateModel();
 
 					}
 				);
+
+
 
 				// camera controls
 				controls = new OrbitControls( camera, renderer.domElement );
@@ -539,7 +550,6 @@ import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelated
 
 				linesFolder.add( params, 'thickness', 0, 5 );
 
-				linesFolder.open();
 
 				const renderFolder = gui.addFolder( 'pixelated pass' );
 				renderFolder.add( params, 'displayPixelPass');
@@ -549,7 +559,6 @@ import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelated
 					renderPixelatedPass.setPixelSize( params.pixelSize );
 
 				} );
-				renderFolder.open();
 
 				gui.open();
 
