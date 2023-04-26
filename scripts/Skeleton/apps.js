@@ -78,12 +78,10 @@ function initScene() {
 
 function initModel(){
   new GLTFLoader().load(
-    'models/basic-test.glb',
+    'models/bud-test.glb',
     gltf => {
-      console.log(gltf)
       bones = [];
       gltf.scene.traverse( function ( child ) {
-        console.log('child', child)
         if(child.isBone){
           bones.push(child)
         }
@@ -98,7 +96,6 @@ function initModel(){
 }
 
 function setMesh(mesh, bones){
-  console.log('mesh', mesh);
   mesh.scale.multiplyScalar( 2 );
 
   mesh.add( bones[ 0 ] );
@@ -165,6 +162,8 @@ function createBones( sizing ) {
     prevBone = bone;
 
   }
+
+  console.log('bones', bones)
 
   return bones;
 
@@ -287,3 +286,32 @@ function render() {
 initScene();
 render();
 
+
+let w = { x: window.innerWidth, y: window.innerHeight };
+
+
+
+document.addEventListener('mousemove', function(e) {
+
+  const x = e.clientX;
+
+  console.log('x', x);
+
+  // append x position to DOM
+  document.getElementById('cursor-helper').innerHTML = `X: ${x}`;
+
+  // if (x <= w.x / 2) {
+  //   // console.log('left');
+  //   bones[1].rotation.z = e.clientX / 100;
+  //   bones[2].rotation.z = e.clientX / 100;
+
+  // }
+  // if (x >= w.x / 2) {
+  //   // console.log('right');
+  //   bones[1].rotation.z = e.clientX / -100;
+  //   bones[2].rotation.z = e.clientX / -100;
+  // }
+
+  // console.log(bones[1].rotation.z)
+
+});
