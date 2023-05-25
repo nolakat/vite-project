@@ -7,6 +7,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 import { initEdgesModel } from './Edges/initEdgesModel.js';
 import { pixelAlignFrustum } from './Edges/pixelAlign.js';
+import { mergeObject } from './Edges/mergeObject.js';
 
 
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
@@ -70,14 +71,14 @@ function initScene() {
   //setup lights
   lights = [];
   lights[ 0 ] = new THREE.PointLight( 0xffffff, 1, 0 );
-  lights[ 1 ] = new THREE.PointLight( 0xffffff, 1, 0 );
-  lights[ 2 ] = new THREE.PointLight( 0xffffff, 1, 0 );
+  lights[ 1 ] = new THREE.PointLight( 'red', .3, 0 );
+  lights[ 2 ] = new THREE.PointLight( 'lightblue', 1, 0 );
 
   lights[ 0 ].position.set( 0, 200, 0 );
   lights[ 1 ].position.set( 100, 200, 100 );
   lights[ 2 ].position.set( - 100, - 200, - 100 );
 
-  scene.add( lights[ 0 ] );
+  // scene.add( lights[ 0 ] );
   scene.add( lights[ 1 ] );
   scene.add( lights[ 2 ] );
 
@@ -112,6 +113,9 @@ function initModel(){
         }
        })
 
+      //  originalModel = mergeObject( gltf.scene );
+       originalModel =  gltf.scene ;
+
        setMesh(mesh, bones);
     }
   );
@@ -120,24 +124,38 @@ function initModel(){
 function setMesh(mesh, bones){
   mesh.scale.multiplyScalar( 2 );
 
+
+  var toonMaterial = new THREE.MeshToonMaterial( {
+    color: 'lightblue',
+    side: THREE.DoubleSide
+  } );
+
+  mesh.material = toonMaterial;
+
+
   mesh.add( bones[ 0 ] );
   skeletonHelper = new THREE.SkeletonHelper( mesh );
   scene.add( skeletonHelper );
   scene.add(mesh)
+
   setupDatGui();
-  // updateModel();
+
+
+  updateModel();
 
 }
 
 function updateModel() {
 
-	originalModel = models[ params.model ];
+  // console.log('originalModel', originalModel);
+  edgesModel = initEdgesModel(params, colors, scene, originalModel, edgesModel);
 
-	initEdgesModel();
 
-	initBackgroundModel();
+	// initEdgesModel();
 
-	initConditionalModel();
+	// initBackgroundModel();
+
+	// initConditionalModel();
 
 }
 
@@ -164,7 +182,7 @@ function setupDatGui() {
 		.min( 0 )
 		.max( 120 )
 		.onChange( ()=>{
-      initEdgesModel(params, scene, originalModel, edgesModel);
+     edgesModel = initEdgesModel(params, colors, scene, originalModel, edgesModel);
     } );
 
   	linesFolder.add( params, 'display', [
@@ -172,7 +190,7 @@ function setupDatGui() {
       'NORMAL_EDGES',
       'NONE',
     ] ).onChange( ()=>{
-      initEdgesModel(params, scene, originalModel, edgesModel);
+      edgesModel = initEdgesModel(params, colors, scene, originalModel, edgesModel);
     } );
 
     linesFolder.add( params, 'displayConditionalEdges' );
@@ -226,8 +244,6 @@ function setColors() {
 }
 
 function animate(){
-  console.log('animate');
-
   requestAnimationFrame( animate );
 
   if(params.displayPixelPass){
@@ -237,7 +253,6 @@ function animate(){
     pixelAlignFrustum( camera, aspectRatio, Math.floor( rendererSize.x /6 ),
     Math.floor( rendererSize.y / 6 ) );
   }
-
 
   setColors();
 	floor.material.opacity = params.opacity;
@@ -268,6 +283,8 @@ function render() {
 
 
     }
+
+    // updateModel();
 
   }
 

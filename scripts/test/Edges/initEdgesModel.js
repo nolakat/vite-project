@@ -1,5 +1,13 @@
 import * as THREE from 'three';
 
+import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { OutsideEdgesGeometry } from '../OutsideEdgesGeometry.js';
+import { LineSegmentsGeometry } from 'three/examples/jsm/lines/LineSegmentsGeometry.js';
+import { LineSegments2 } from 'three/examples/jsm/lines/LineSegments2.js';
+import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
+
+
+
 /**
 * Initializes and adds edges to a 3D model displayed in a Three.js scene.
 *
@@ -18,9 +26,9 @@ import * as THREE from 'three';
 * @global {THREE.Mesh} originalModel - The original 3D model to which edges will be added.
 * @global {THREE.Mesh} edgesModel - The cloned 3D model with edges that will be added to the scene.
 */
-export function initEdgesModel(params, scene, originalModel, edgesModel) {
+export function initEdgesModel(params, colors, scene, originalModel, edgesModel) {
+	console.log('old edgesModel', edgesModel)
 
-  console.log('initEdgesModel');
 	// Remove any previous edges model and dispose of its materials
 	if (edgesModel) {
 		edgesModel.parent.remove(edgesModel);
@@ -33,6 +41,7 @@ export function initEdgesModel(params, scene, originalModel, edgesModel) {
 				}
 			}
 		});
+
 	}
 
 	// If there's no original model, exit early
@@ -42,6 +51,25 @@ export function initEdgesModel(params, scene, originalModel, edgesModel) {
 
 	// Clone the original model and add it to the scene
 	edgesModel = originalModel.clone();
+	console.log('originalModel', originalModel);
+	console.log('new edgesModel', edgesModel)
+
+	edgesModel.traverse((c) => {
+		// console.log('C', c)
+		if (c.isMesh) {
+			c.scale.multiplyScalar( 2 );
+
+			console.log('EDGE MESH', c)
+		}
+	});
+
+	originalModel.traverse((c) => {
+		console.log('C', c)
+		if(c.isBone){
+			console.log('BONE')
+		}
+	});
+
 	scene.add(edgesModel);
 
 	// If edge display is disabled, hide the edges model and exit early
@@ -69,37 +97,39 @@ export function initEdgesModel(params, scene, originalModel, edgesModel) {
 			lineGeom = new THREE.EdgesGeometry(mesh.geometry, params.threshold);
 		} else {
 			// Compute outside edges
-			const mergeGeom = mesh.geometry.clone();
-			mergeGeom.deleteAttribute("uv");
-			mergeGeom.deleteAttribute("uv2");
-			lineGeom = new OutsideEdgesGeometry(
-				BufferGeometryUtils.mergeVertices(mergeGeom, 1e-3)
-			);
+			// const mergeGeom = mesh.geometry.clone();
+			// mergeGeom.deleteAttribute("uv");
+			// mergeGeom.deleteAttribute("uv2");
+			// lineGeom = new OutsideEdgesGeometry(
+			// 	BufferGeometryUtils.mergeVertices(mergeGeom, 1e-3)
+			// );
 		}
 
 		// Add thin and thick line segments to the scene
 		const line = new THREE.LineSegments(
 			lineGeom,
-			new THREE.LineBasicMaterial({ color: LIGHT_LINES })
+			new THREE.LineBasicMaterial({ color: colors.LIGHT_LINES })
 		);
 		line.position.copy(mesh.position);
 		line.scale.copy(mesh.scale);
 		line.rotation.copy(mesh.rotation);
 
-		const thickLineGeom = new LineSegmentsGeometry().fromEdgesGeometry(
-			lineGeom
-		);
-		const thickLines = new LineSegments2(
-			thickLineGeom,
-			new LineMaterial({ color: LIGHT_LINES, linewidth: 3 })
-		);
-		thickLines.position.copy(mesh.position);
-		thickLines.scale.copy(mesh.scale);
-		thickLines.rotation.copy(mesh.rotation);
+		// const thickLineGeom = new LineSegmentsGeometry().fromEdgesGeometry(
+		// 	lineGeom
+		// );
+		// const thickLines = new LineSegments2(
+		// 	thickLineGeom,
+		// 	new LineMaterial({ color: colors.LIGHT_LINES, linewidth: 3 })
+		// );
+		// thickLines.position.copy(mesh.position);
+		// thickLines.scale.copy(mesh.scale);
+		// thickLines.rotation.copy(mesh.rotation);
 
 		// Replace the original mesh with the thin and thick line segments
 		parent.remove(mesh);
 		parent.add(line);
-		parent.add(thickLines);
+		// parent.add(thickLines);
+
+		return edgesModel
 	}
 }
