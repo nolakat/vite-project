@@ -27,7 +27,6 @@ import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 * @global {THREE.Mesh} edgesModel - The cloned 3D model with edges that will be added to the scene.
 */
 export function initEdgesModel(params, colors, scene, originalModel, edgesModel) {
-	console.log('old edgesModel', edgesModel)
 
 	// Remove any previous edges model and dispose of its materials
 	if (edgesModel) {
@@ -51,20 +50,14 @@ export function initEdgesModel(params, colors, scene, originalModel, edgesModel)
 
 	// Clone the original model and add it to the scene
 	edgesModel = originalModel.clone();
-	console.log('originalModel', originalModel);
-	console.log('new edgesModel', edgesModel)
 
 	edgesModel.traverse((c) => {
-		// console.log('C', c)
 		if (c.isMesh) {
-			c.scale.multiplyScalar( 2 );
-
-			console.log('EDGE MESH', c)
+			// c.scale.multiplyScalar( 2 );
 		}
 	});
 
 	originalModel.traverse((c) => {
-		console.log('C', c)
 		if(c.isBone){
 			console.log('BONE')
 		}
@@ -97,12 +90,12 @@ export function initEdgesModel(params, colors, scene, originalModel, edgesModel)
 			lineGeom = new THREE.EdgesGeometry(mesh.geometry, params.threshold);
 		} else {
 			// Compute outside edges
-			// const mergeGeom = mesh.geometry.clone();
-			// mergeGeom.deleteAttribute("uv");
-			// mergeGeom.deleteAttribute("uv2");
-			// lineGeom = new OutsideEdgesGeometry(
-			// 	BufferGeometryUtils.mergeVertices(mergeGeom, 1e-3)
-			// );
+			const mergeGeom = mesh.geometry.clone();
+			mergeGeom.deleteAttribute("uv");
+			mergeGeom.deleteAttribute("uv2");
+			lineGeom = new OutsideEdgesGeometry(
+				BufferGeometryUtils.mergeVertices(mergeGeom, 1e-3)
+			);
 		}
 
 		// Add thin and thick line segments to the scene
@@ -114,20 +107,23 @@ export function initEdgesModel(params, colors, scene, originalModel, edgesModel)
 		line.scale.copy(mesh.scale);
 		line.rotation.copy(mesh.rotation);
 
-		// const thickLineGeom = new LineSegmentsGeometry().fromEdgesGeometry(
-		// 	lineGeom
-		// );
-		// const thickLines = new LineSegments2(
-		// 	thickLineGeom,
-		// 	new LineMaterial({ color: colors.LIGHT_LINES, linewidth: 3 })
-		// );
-		// thickLines.position.copy(mesh.position);
-		// thickLines.scale.copy(mesh.scale);
-		// thickLines.rotation.copy(mesh.rotation);
+		const thickLineGeom = new LineSegmentsGeometry().fromEdgesGeometry(
+			lineGeom
+		);
+		const thickLines = new LineSegments2(
+			thickLineGeom,
+			new LineMaterial({ color:'green', linewidth: 3 })
+		);
+
+		console.log('thick lines', thickLines);
+		thickLines.position.copy(mesh.position);
+		thickLines.scale.copy(mesh.scale);
+		thickLines.rotation.copy(mesh.rotation);
 
 		// Replace the original mesh with the thin and thick line segments
 		parent.remove(mesh);
 		parent.add(line);
+		// thickLines is messed up
 		// parent.add(thickLines);
 
 		return edgesModel

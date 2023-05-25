@@ -8,6 +8,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { initEdgesModel } from './Edges/initEdgesModel.js';
 import { pixelAlignFrustum } from './Edges/pixelAlign.js';
 import { mergeObject } from './Edges/mergeObject.js';
+import { initBackgroundModel } from './Edges/initBackgroundModel.js';
 
 
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
@@ -29,7 +30,7 @@ import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelated
 
 let gui, scene, camera, renderer, orbit, lights, composer, renderPixelatedPass, mesh, skeleton, floor, bones, skeletonHelper;
 
-let edgesModel, originalModel, backgroundModel, conditionalModel;
+let edgesModel, originalModel, backgroundModel, conditionalModel, shadowModel, depthModel;
 
 const models = {};
 const color = new THREE.Color();
@@ -44,8 +45,8 @@ function initScene() {
 	scene.background = new THREE.Color( colors.LIGHT_BACKGROUND );
 
 	//setup camera
-  camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 200 );
-  camera.position.set( -1, 0.5, 50 ).multiplyScalar( 0.75 );
+  camera = new THREE.PerspectiveCamera( 76, window.innerWidth / window.innerHeight, 0.1, 200 );
+  camera.position.set( -1, 0.5, 50 ).multiplyScalar( .45 );
 	scene.add( camera );
 
 	//setup renderer
@@ -92,8 +93,6 @@ function initScene() {
 	floor.receiveShadow = true;
 	scene.add( floor );
 
-
-
   initModel();
 
 
@@ -127,7 +126,7 @@ function initModel(){
 }
 
 function setMesh(mesh, bones){
-  mesh.scale.multiplyScalar( 2 );
+  // mesh.scale.multiplyScalar( 2 );
 
 
   var toonMaterial = new THREE.MeshToonMaterial( {
@@ -156,13 +155,13 @@ function updateModel() {
 
   // console.log('originalModel', originalModel);
   edgesModel = initEdgesModel(params, colors, scene, originalModel, edgesModel);
-
-
+  const obj = initBackgroundModel ( scene,originalModel, backgroundModel, shadowModel, depthModel, colors);
+  backgroundModel = obj.backgroundModel;
+  depthModel = obj.depthModel;
 
 
 	// initEdgesModel();
 
-	// initBackgroundModel();
 
 	// initConditionalModel();
 
@@ -306,14 +305,13 @@ function render() {
         bone.rotation.z = angle;
         if(params.mode === 'LINES'){
           edgesModel.rotation.z = angle;
+          backgroundModel.rotation.z = angle;
+          depthModel.rotation.z = angle;
         }
 
 
 
     }
-
-    // updateModel();
-
   }
 
   if(params.displayPixelPass){
