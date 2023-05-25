@@ -5,7 +5,8 @@
 		modelColor: '#0d2a28',
 		lineColor: '#ffb400',
 		shadowColor: '#44491f',
-
+		mode: 'TOON',
+		displaySkeleton: true,
 		lit: false,
 		opacity: 0.15,
 		threshold: 40,

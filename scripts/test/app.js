@@ -113,8 +113,13 @@ function initModel(){
         }
        })
 
-      //  originalModel = mergeObject( gltf.scene );
-       originalModel =  gltf.scene ;
+
+      if(params.mode == 'TOON'){
+        originalModel =  gltf.scene;
+      } else {
+        //mergeObject is messing with animation data.  Need to figure out how to merge without messing with animation data
+        originalModel = mergeObject( gltf.scene );
+      }
 
        setMesh(mesh, bones);
     }
@@ -135,7 +140,9 @@ function setMesh(mesh, bones){
 
   mesh.add( bones[ 0 ] );
   skeletonHelper = new THREE.SkeletonHelper( mesh );
-  scene.add( skeletonHelper );
+  if(params.displaySkeleton){
+    scene.add( skeletonHelper );
+  }
   scene.add(mesh)
 
   setupDatGui();
@@ -171,6 +178,19 @@ function setupDatGui() {
 	gui.addColor( params, 'modelColor' );
 	gui.addColor( params, 'lineColor' );
 	gui.addColor( params, 'shadowColor' );
+  gui.add(params, 'mode', [ 'TOON', 'LINES']).onChange( ()=> {
+    scene.remove(mesh);
+    scene.remove( skeletonHelper );
+
+    initModel();
+  });
+  gui.add(params, 'displaySkeleton').onChange( ()=> {
+    if(params.displaySkeleton){
+      scene.add( skeletonHelper );
+    } else {
+      scene.remove( skeletonHelper );
+    }
+  })
 
   let modelFolder = gui.addFolder('Model')
 
