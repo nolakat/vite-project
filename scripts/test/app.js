@@ -158,6 +158,8 @@ function updateModel() {
   edgesModel = initEdgesModel(params, colors, scene, originalModel, edgesModel);
 
 
+
+
 	// initEdgesModel();
 
 	// initBackgroundModel();
@@ -298,8 +300,14 @@ function render() {
         // Calculate the rotation angle based on the current time and the number of bones in the skeleton
         const angle = Math.sin(time) * .75 / mesh.skeleton.bones.length;
 
+
+
         // Set the bone's rotation around the z-axis to the calculated angle
         bone.rotation.z = angle;
+        if(params.mode === 'LINES'){
+          edgesModel.rotation.z = angle;
+        }
+
 
 
     }
