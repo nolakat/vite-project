@@ -163,8 +163,6 @@ function createBones( sizing ) {
 
   }
 
-  console.log('bones', bones)
-
   return bones;
 
 }
@@ -215,9 +213,9 @@ function setupDatGui() {
     folder.add( bone.position, 'y', - 10 + bone.position.y, 10 + bone.position.y );
     folder.add( bone.position, 'z', - 10 + bone.position.z, 10 + bone.position.z );
 
-    folder.add( bone.rotation, 'x', - Math.PI * 0.5, Math.PI * 0.5 );
-    folder.add( bone.rotation, 'y', - Math.PI * 0.5, Math.PI * 0.5 );
-    folder.add( bone.rotation, 'z', - Math.PI * 0.5, Math.PI * 0.5 );
+    folder.add( bone.rotation, 'x', - Math.PI * 0.5, Math.PI * 0.5 ).listen();
+    folder.add( bone.rotation, 'y', - Math.PI * 0.5, Math.PI * 0.5 ).listen();
+    folder.add( bone.rotation, 'z', - Math.PI * 0.5, Math.PI * 0.5 ).listen();
 
     folder.add( bone.scale, 'x', 0, 2 );
     folder.add( bone.scale, 'y', 0, 2 );
@@ -273,7 +271,20 @@ function render() {
 
     for ( let i = 0; i < mesh.skeleton.bones.length; i ++ ) {
 
-      mesh.skeleton.bones[ i ].rotation.z = Math.sin( time ) * 2 / mesh.skeleton.bones.length;
+      // mesh.skeleton.bones[ i ].rotation.z = Math.sin( time ) * 2 / mesh.skeleton.bones.length;
+
+        // Get the current bone in the loop
+        const bone = mesh.skeleton.bones[i];
+
+        console.log('time', time)
+        console.log('sin', Math.sin(time))
+
+        // Calculate the rotation angle based on the current time and the number of bones in the skeleton
+        const angle = Math.sin(time) * .75 / mesh.skeleton.bones.length;
+
+        // Set the bone's rotation around the z-axis to the calculated angle
+        bone.rotation.z = angle;
+
 
     }
 
@@ -294,9 +305,6 @@ let w = { x: window.innerWidth, y: window.innerHeight };
 document.addEventListener('mousemove', function(e) {
 
   const x = e.clientX;
-
-  console.log('x', x);
-
   // append x position to DOM
   document.getElementById('cursor-helper').innerHTML = `X: ${x}`;
 

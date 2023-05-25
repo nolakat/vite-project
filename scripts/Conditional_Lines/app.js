@@ -61,7 +61,7 @@ import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelated
 			init();
 			animate();
 
-function randomizeColors() {cxv
+function randomizeColors() {
 
 	const lineH = Math.random();
 	const lineS = Math.random() * 0.2 + 0.8;
@@ -509,15 +509,21 @@ function init() {
 
 				skeleton = new THREE.Skeleton( bones );
 				console.log('skeleton', skeleton);
+				if(skinnedMesh){
 				skinnedMesh.add(bones[0])
 				skinnedMesh.bind(skeleton);
 
+
 				console.log('SkinnedMesh', skinnedMesh);
 
+				}
+
+			if(skinnedMesh){
 			const skeletonHelper = new THREE.SkeletonHelper( skinnedMesh );
 			skeletonHelper.material.linewidth = 2;
 
 			scene.add(skeletonHelper)
+			}
 
 			const model = mergeObject( gltf.scene );
 
@@ -601,27 +607,27 @@ function initGui() {
 
 	} );
 
-	for ( let i = 0; i < bones.length; i ++ ) {
+	// for ( let i = 0; i < bones.length; i ++ ) {
 
-		const bone = bones[ i ];
-		let folder = gui.addFolder(  bone.name );
+	// 	const bone = bones[ i ];
+	// 	let folder = gui.addFolder(  bone.name );
 
-		folder.add( bone.position, 'x', - 10 + bone.position.x, 10 + bone.position.x ).name( 'position.x' ).onChange( () => {	console.log('pos', bone.position.x) })	;
-		folder.add( bone.position, 'y', - 10 + bone.position.y, 10 + bone.position.y ).name( 'position.y');
-		folder.add( bone.position, 'z', - 10 + bone.position.z, 10 + bone.position.z ).name( 'position.z');
+	// 	folder.add( bone.position, 'x', - 10 + bone.position.x, 10 + bone.position.x ).name( 'position.x' ).onChange( () => {	console.log('pos', bone.position.x) })	;
+	// 	folder.add( bone.position, 'y', - 10 + bone.position.y, 10 + bone.position.y ).name( 'position.y');
+	// 	folder.add( bone.position, 'z', - 10 + bone.position.z, 10 + bone.position.z ).name( 'position.z');
 
-		folder.add( bone.rotation, 'x', - Math.PI * 0.5, Math.PI * 0.5 ).name('rotation.x').onChange( () => {
-			// skeleton.update();
-			// console.log('rot', bone.rotation.x)
-		});
-		folder.add( bone.rotation, 'y', - Math.PI * 0.5, Math.PI * 0.5 ).name('rotation.y');
-		folder.add( bone.rotation, 'z', - Math.PI * 0.5, Math.PI * 0.5 ).name('rotation.z');
+	// 	folder.add( bone.rotation, 'x', - Math.PI * 0.5, Math.PI * 0.5 ).name('rotation.x').onChange( () => {
+	// 		// skeleton.update();
+	// 		// console.log('rot', bone.rotation.x)
+	// 	});
+	// 	folder.add( bone.rotation, 'y', - Math.PI * 0.5, Math.PI * 0.5 ).name('rotation.y');
+	// 	folder.add( bone.rotation, 'z', - Math.PI * 0.5, Math.PI * 0.5 ).name('rotation.z');
 
-		folder.add( bone.scale, 'x', 0, 2 ).name('scale.x');
-		folder.add( bone.scale, 'y', 0, 2 ).name('scale.y');
-		folder.add( bone.scale, 'z', 0, 2 ).name('scale.z');
+	// 	folder.add( bone.scale, 'x', 0, 2 ).name('scale.x');
+	// 	folder.add( bone.scale, 'y', 0, 2 ).name('scale.y');
+	// 	folder.add( bone.scale, 'z', 0, 2 ).name('scale.z');
 
-	}
+	// }
 
 }
 
