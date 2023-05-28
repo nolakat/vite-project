@@ -26,6 +26,7 @@ import { ColoredShadowMaterial } from './ColoredShadowMaterial.js';
 
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelatedPass.js';
+import { initConditionalModel } from './Edges/initConditionalModel.js';
 
 
 let gui, scene, camera, renderer, orbit, lights, composer, renderPixelatedPass, mesh, skeleton, floor, bones, skeletonHelper;
@@ -128,26 +129,29 @@ function initModel(){
 function setMesh(mesh, bones){
   // mesh.scale.multiplyScalar( 2 );
 
-
+if(params.mode == 'TOON'){
   var toonMaterial = new THREE.MeshToonMaterial( {
     color: 'lightblue',
     side: THREE.DoubleSide
   } );
 
   mesh.material = toonMaterial;
-
+}
 
   mesh.add( bones[ 0 ] );
   skeletonHelper = new THREE.SkeletonHelper( mesh );
   if(params.displaySkeleton){
     scene.add( skeletonHelper );
   }
-  scene.add(mesh)
+
 
   setupDatGui();
 
-
-  updateModel();
+  if(params.mode == 'LINES'){
+    updateModel();
+  } else {
+    scene.add(mesh)
+  }
 
 }
 
@@ -159,12 +163,9 @@ function updateModel() {
   backgroundModel = obj.backgroundModel;
   depthModel = obj.depthModel;
 
+  conditionalModel = initConditionalModel( conditionalModel, originalModel, scene, colors)
 
-	// initEdgesModel();
-
-
-	// initConditionalModel();
-
+  console.log('conditionalModel', conditionalModel);
 }
 
 function setupDatGui() {
@@ -266,6 +267,10 @@ function setColors() {
 
 function animate(){
   requestAnimationFrame( animate );
+  let linesColor = colors.LIGHT_LINES;
+	let modelColor = colors.LIGHT_MODEL;
+	let backgroundColor = colors.LIGHT_BACKGROUND;
+	let shadowColor = colors.LIGHT_SHADOW;
 
   if(params.displayPixelPass){
     const rendererSize = renderer.getSize( new THREE.Vector2() );
@@ -274,6 +279,49 @@ function animate(){
     pixelAlignFrustum( camera, aspectRatio, Math.floor( rendererSize.x /6 ),
     Math.floor( rendererSize.y / 6 ) );
   }
+
+  if ( conditionalModel ) {
+    console.log('a')
+
+		conditionalModel.visible = params.displayConditionalEdges;
+		conditionalModel.traverse( c => {
+
+			if ( c.material && c.material.resolution ) {
+
+				renderer.getSize( c.material.resolution );
+				c.material.resolution.multiplyScalar( window.devicePixelRatio );
+				c.material.linewidth = params.thickness;
+
+			}
+
+			if ( c.material ) {
+
+				c.visible = c instanceof LineSegments2 ? params.useThickLines : ! params.useThickLines;
+				c.material.uniforms.diffuse.value.set( linesColor );
+
+			}
+
+		} );
+
+	}
+
+
+  if ( backgroundModel ) {
+		backgroundModel.visible = ! params.lit;
+		backgroundModel.traverse( c => {
+
+			if ( c.isMesh ) {
+
+				c.material.transparent = params.opacity !== 1.0;
+				c.material.opacity = params.opacity;
+				c.material.color.set( modelColor );
+
+			}
+
+		} );
+
+	}
+
 
   setColors();
 	floor.material.opacity = params.opacity;

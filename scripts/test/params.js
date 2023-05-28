@@ -1,6 +1,6 @@
 	// globals
 	export var params = {
-		colors: 'DARK',
+		colors: 'LIGHT',
 		backgroundColor: '#0d2a28',
 		modelColor: '#0d2a28',
 		lineColor: '#ffb400',
